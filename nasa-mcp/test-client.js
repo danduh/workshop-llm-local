@@ -3,12 +3,17 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function testServer() {
   console.log('Starting MCP client...');
   
   // Spawn the server process
-  const serverProcess = spawn('node', ['dist/index.js'], {
+  const serverProcess = spawn('node', [join(__dirname, 'dist/index.js')], {
     env: { ...process.env, NASA_API_KEY: 'DEMO_KEY' }
   });
 
