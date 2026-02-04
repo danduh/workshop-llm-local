@@ -11,16 +11,22 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   ListToolsRequestSchema,
+  CallToolRequestSchema,
+  CallToolResult,
 } from "@modelcontextprotocol/sdk/types.js";
 import { loadConfig } from "./config.js";
 import {
   NASA_APOD_JSON_SCHEMA,
+  NasaApodInput,
+  ApodEntry,
 } from "./types.js";
+import { NasaApiClient } from "./nasa-api.js";
 
 // Load configuration
 const config = loadConfig();
 
 // Create NASA API client
+const nasaClient = new NasaApiClient(config);
 
 // Server metadata
 const SERVER_NAME = "nasa-mcp";
@@ -57,7 +63,88 @@ function createServer(): Server {
     };
   });
 
+  // Handle tool calls
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
+
+    if (name === "nasa_apod") {
+      try {
+        // Cast arguments to expected type
+        const input = args as NasaApodInput;
+
+        // Fetch APOD data
+        const response = await nasaClient.fetchApod(input);
+
+        // Format response
+        let formattedText: string;
+        let structuredData: unknown;
+
+        if (Array.isArray(response)) {
+          formattedText = `# NASA APOD Results (${response.length} entries)\n\n`;
+          formattedText += response
+            .map((entry) => formatApodEntry(entry))
+            .join("\n---\n\n");
+          structuredData = response;
+        } else {
+          formattedText = "# NASA Astronomy Picture of the Day\n\n";
+          formattedText += formatApodEntry(response);
+          structuredData = response;
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: formattedText,
+            },
+          ],
+          _meta: {
+            structured: structuredData,
+          },
+        } as CallToolResult;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Error fetching APOD: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        } as CallToolResult;
+      }
+    }
+
+    throw new Error(`Unknown tool: ${name}`);
+  });
+
   return server;
+}
+
+/**
+ * Format a single APOD entry for display
+ */
+function formatApodEntry(entry: ApodEntry): string {
+  let text = `📅 **${entry.date}** - ${entry.title}\n\n`;
+  text += `${entry.explanation}\n\n`;
+  text += `🔗 **Media Type:** ${entry.media_type}\n`;
+  text += `🔗 **URL:** ${entry.url}\n`;
+  
+  if (entry.hdurl) {
+    text += `🔗 **HD URL:** ${entry.hdurl}\n`;
+  }
+  
+  if (entry.thumbnail_url) {
+    text += `🔗 **Thumbnail:** ${entry.thumbnail_url}\n`;
+  }
+  
+  if (entry.copyright) {
+    text += `©️ **Copyright:** ${entry.copyright}\n`;
+  }
+  
+  return text;
 }
 
 /**
