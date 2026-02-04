@@ -30,6 +30,19 @@ env.bak/
 venv.bak/
 .venv/
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+.npm
+.yarn
+.pnp.*
+.eslintcache
+
 # Jupyter Notebook
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
@@ -146,3 +159,4 @@ temp/
 *.tmp
 *.bak
 *.swp
+nasa-mcp/.docs
