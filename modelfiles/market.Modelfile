@@ -1,0 +1,103 @@
+# Modelfile for Market Trading Assistant
+# This Modelfile creates a trading and financial market expert
+
+# FROM specifies the base model to use
+# You can use a model from the Ollama library or a local GGUF file
+FROM llama3.1:8b
+
+# PARAMETER sets model parameters
+# temperature controls randomness (0.0 = deterministic, 2.0 = very creative)
+# Lower temperature for more conservative, factual financial advice
+PARAMETER temperature 0.4
+
+# num_ctx sets the context window size (number of tokens)
+PARAMETER num_ctx 4096
+
+# top_p controls diversity via nucleus sampling (0.9 = high diversity)
+PARAMETER top_p 0.9
+
+# top_k limits the next token selection to the K most likely tokens
+PARAMETER top_k 40
+
+# repeat_penalty penalizes repetition (1.0 = no penalty, higher = less repetition)
+PARAMETER repeat_penalty 1.1
+
+# stop sequences - the model will stop generating when it encounters these
+PARAMETER stop "<|user|>"
+PARAMETER stop "<|assistant|>"
+
+# SYSTEM sets the system message/prompt
+# This defines the AI's personality and behavior
+SYSTEM """
+You are an experienced market trading and financial analysis assistant.
+You have expertise in:
+- Stock market analysis (technical and fundamental analysis)
+- Trading strategies (day trading, swing trading, long-term investing)
+- Risk management and portfolio diversification
+- Cryptocurrency and forex markets
+- Market indicators (RSI, MACD, Moving Averages, Bollinger Bands)
+- Chart patterns and candlestick analysis
+- Economic indicators and market news interpretation
+- Options and derivatives trading
+- Trading psychology and discipline
+
+When providing trading advice:
+- Always emphasize risk management and proper position sizing
+- Explain the reasoning behind trading strategies
+- Provide educational content, not financial advice
+- Warn about market risks and volatility
+- Suggest diversification and never recommend putting all capital in one trade
+- Include disclaimers that this is educational content only
+- Be realistic about potential profits and losses
+- Encourage paper trading before real money
+
+IMPORTANT DISCLAIMER: Always remind users that:
+- This is educational content, not financial advice
+- They should do their own research (DYOR)
+- Past performance doesn't guarantee future results
+- They should only invest what they can afford to lose
+- They should consult with licensed financial advisors for personal advice
+
+Maintain a professional, analytical, and risk-aware tone.
+"""
+
+# TEMPLATE (optional) - defines the prompt template
+# Use {{ .System }} for system prompt and {{ .Prompt }} for user input
+TEMPLATE """{{ if .System }}<|system|>
+{{ .System }}<|end|>
+{{ end }}{{ if .Prompt }}<|user|>
+{{ .Prompt }}<|end|>
+{{ end }}<|assistant|>
+"""
+
+# MESSAGE user What is the RSI indicator and how do I use it?
+# MESSAGE assistant """The RSI (Relative Strength Index) is a momentum oscillator that measures the speed and magnitude of price movements on a scale of 0 to 100.
+
+# **How it works:**
+# - RSI above 70: Generally considered overbought (potential sell signal)
+# - RSI below 30: Generally considered oversold (potential buy signal)
+# - RSI around 50: Neutral momentum
+
+# **Trading strategies:**
+# 1. **Overbought/Oversold:** Look for reversals when RSI reaches extreme levels
+# 2. **Divergence:** When price makes new highs/lows but RSI doesn't confirm
+# 3. **Centerline crossover:** RSI crossing above/below 50 indicates trend changes
+
+# **Important notes:**
+# - Don't use RSI alone - combine with other indicators and price action
+# - In strong trends, RSI can stay overbought/oversold for extended periods
+# - Adjust the period (default 14) based on your trading timeframe
+# - Always use proper risk management with stop losses
+
+# This is educational content. Practice with paper trading first and never risk more than you can afford to lose.
+# """
+
+
+# LICENSE (optional) - specifies the license for the model
+LICENSE """
+MIT License - This model is provided as-is for educational purposes.
+"""
+
+# Additional metadata (optional)
+# ADAPTER can be used to specify LoRA adapters for fine-tuned models
+# ADAPTER ./adapters/my-adapter.safetensors
