@@ -52,7 +52,7 @@ ipython_config.py
 adapters/
 models/
 checkpoints/
-
+node_modules/
 # Data Files (Large Datasets)
 data/*.csv
 data/*.json
@@ -70,7 +70,7 @@ data/*.pickle
 .env
 .env.local
 .env.*.local
-
+adapters/
 # IDE
 .vscode/
 .idea/

@@ -1,0 +1,1 @@
+Create a markdown file that shows NASA’s Astronomy Picture of the Day for the last seven days, with the image and a short description for each day.”

@@ -2,31 +2,103 @@
 
 Local fine-tuning of Phi-3 Mini Instruct (4-bit) using LoRA on Apple Silicon.
 
-## Quick Start
+## Bootstrap
 
-### 1) Install Dependencies
+### 1) Install Ollama CLI
+
+#### macOS (Homebrew)
 
 ```bash
-# Install uv (if needed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install packages
-uv pip install huggingface_hub mlx-lm
+brew install ollama
 ```
 
-### 2) Download Model
+Start Ollama:
 
 ```bash
+brew services start ollama
+```
+
+#### Windows
+
+Install with Winget:
+
+```powershell
+winget install Ollama.Ollama
+```
+
+Or with Chocolatey:
+
+```powershell
+choco install ollama
+```
+
+Optional (Homebrew on Windows via WSL):
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install ollama
+```
+
+Verify:
+
+```bash
+ollama --version
+```
+
+### 2) Install Python tooling (`uv` + Hugging Face CLI)
+
+Install `uv`:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Install Hugging Face CLI:
+
+```bash
+uv tool install "huggingface_hub[cli]"
+```
+
+Verify:
+
+```bash
+hf --help
+```
+
+### 3) Bootstrap this repo
+
+From the project root:
+
+```bash
+uv venv
+source .venv/bin/activate
+uv sync
+```
+
+This installs dependencies from `pyproject.toml` (including `mlx-lm`, `huggingface-hub`, and `ipykernel`).
+
+### 4) Authenticate to Hugging Face and download model
+
+```bash
+hf auth login
 hf download mlx-community/Phi-3-mini-4k-instruct-4bit
 ```
 
-### 3) Test Base Model
+## Quick Start (Workshop Flow)
 
-Open `tune copy.ipynb` and run the first cell to test the base model.
+### 1) Quick sanity check
 
-### 4) Fine-Tune
+```bash
+python3 hello.py
+```
 
-Run the second cell in the notebook to start training, or use:
+### 2) Test base model
+
+Open `tune-simple.ipynb` and run the first cell.
+
+### 3) Fine-tune
+
+Run the training cell in `tune-simple.ipynb`, or run:
 
 ```bash
 python -m mlx_lm.lora \
@@ -37,16 +109,16 @@ python -m mlx_lm.lora \
   --adapter-path ./adapters
 ```
 
-### 5) Test Fine-Tuned Model
+### 4) Test fine-tuned model
 
-Run the third cell in the notebook to test with the trained adapter.
+Run the final test cell in `tune-simple.ipynb`.
 
 ## Project Structure
 
 ```
-├── adapters/              # LoRA adapter weights (generated)
-├── data/                  # Training data (JSONL format)
-├── tune copy.ipynb       # Testing notebook
+├── adapters/             # LoRA adapter weights (generated)
+├── data/                 # Training data (JSONL format)
+├── tune-simple.ipynb     # Workshop notebook
 ├── FINE_TUNE.md          # Detailed fine-tuning guide
 └── README.md             # This file
 ```
@@ -54,11 +126,3 @@ Run the third cell in the notebook to test with the trained adapter.
 ## Documentation
 
 - **[FINE_TUNE.md](FINE_TUNE.md)** - Complete fine-tuning guide with configuration details
-
-## Quick Test
-
-Run the hello script:
-
-```bash
-python3 hello.py
-```
